@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SpringBoot集成SSE2</title>
+</head>
+<script>
+    let source = null;
+    const clientId = new Date().getTime();
+    if (!!window.EventSource) {
+
+        source = new EventSource('/sse/create?clientId=' + clientId);
+
+        /**
+         * 建立连接
+         */
+        source.onopen = function (event) {
+            setMessageInnerHTML("建立连接" + event);
+        }
+
+        /**
+         * 接收数据
+         */
+        source.onmessage = function (event) {
+            setMessageInnerHTML(event.data);
+        }
+
+
+        /**
+         * 监听错误
+         */
+        source.onerror = function (event) {
+            if (event.readyState === EventSource.CLOSED) {
+                setMessageInnerHTML("连接关闭");
+            } else {
+                console.log(event);
+            }
+        }
+    } else {
+        setMessageInnerHTML("浏览器不支持SSE");
+    }
+
+    window.onbeforeunload = function () {
+        close();
+    };
+
+    // 关闭
+    function close() {
+        source.close();
+        const httpRequest = new XMLHttpRequest();
+        httpRequest.open('GET', '/sse/close/?clientId=' + clientId, true);
+        httpRequest.send();
+        console.log("close");
+    }
+
+    // 显示消息
+    function setMessageInnerHTML(innerHTML) {
+        document.getElementById('text').innerHTML += innerHTML + '<br/>';
+    }
+</script>
+<body>
+<button onclick="close()">关闭连接</button>
+<div id="text"></div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SpringBoot集成SSE1</title>
+    <script type="text/javascript">
+        let source = new EventSource('/get');
+        source.onmessage = function (event) {
+            console.info(event.data);
+            document.getElementById('text').innerText = event.data
+        };
+    </script>
+</head>
+<body>
+<div id="text"></div>
+</body>
+</html>
